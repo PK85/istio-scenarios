@@ -1,0 +1,11 @@
+apiVersion: "authentication.istio.io/v1alpha1"
+kind: "Policy"
+metadata:
+  name: "httpbin-policy"
+  namespace: foo
+spec:
+  targets:
+    - name: httpbin
+  peers:
+    - mtls:
+        mode: PERMISSIVE

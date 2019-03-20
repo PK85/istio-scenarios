@@ -1,0 +1,12 @@
+apiVersion: "rbac.istio.io/v1alpha1"
+kind: ServiceRoleBinding
+metadata:
+  name: httpbin
+  namespace: foo
+spec:
+  subjects:
+  - user: "cluster.local/ns/bar/sa/sleep-account"
+  - user: "cluster.local/ns/foo/sa/sleep-account"
+  roleRef:
+    kind: ServiceRole
+    name: "httpbin"

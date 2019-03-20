@@ -1,0 +1,9 @@
+apiVersion: rbac.istio.io/v1alpha1
+kind: RbacConfig
+metadata:
+  name: default
+  namespace: foo
+spec:
+  inclusion:
+    services: ["httpbin.foo.svc.cluster.local"]
+  mode: ON_WITH_INCLUSION
