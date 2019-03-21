@@ -21,7 +21,7 @@ See more:
    ```
    
 ## Setup and flow
-The scenario was tested on Kyma 0.8 and Istio 1.0.2.
+The scenario was tested on Kyma 0.8, Istio 1.0.2, Istio 1.1.0.
 
 ### Preparation
 - Create the `foo` and `bar` namespaces and deploy `httpbin` and `sleep` with sidecar on both of them. 
@@ -115,7 +115,7 @@ The scenario was tested on Kyma 0.8 and Istio 1.0.2.
   sleep.bar to httpbin.foo: 503
   sleep.legacy to httpbin.foo: 200
   ```
-   >**CAUTION:** Mutual TLS and plain traffic should be allowed from definition, but somehow Istio says 503 for `sleep` services with sidecar. See next point where Istio policy solves that issue.
+   >**CAUTION:** Mutual TLS and plain traffic should be allowed from definition, but Istio 1.0.2 says 503 for `sleep` services with sidecar because of lack of default MeshPolicy custom resource. See next point where Istio policy solves that issue. The Istio 1.1.0 has that default CR.
 - Configure `sleep` services to send mutual TLS traffic to `httpbin.foo` with STRICT mode. Required for authorization scenarios.
   ```
   kubectl apply -f samples/policy-strict.yaml
@@ -154,6 +154,8 @@ The scenario was tested on Kyma 0.8 and Istio 1.0.2.
   ```
   kubectl apply -f samples/rbac-config.yaml
   ```
+  >**CAUTION:** The RbacConfig CRD is a namespace scoped resource but it's a **SINGLETON**, must have `default` name, and only first created CR is known for the Istio.
+  
   *Expected result:*
   ```
   rbacconfig.rbac.istio.io/default created
