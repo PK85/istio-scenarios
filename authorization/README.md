@@ -8,6 +8,9 @@ In the scenario I will show you how to define access control policies to grant a
   - ServiceRole
   - ServiceRoleBinding
 
+See more:
+- https://istio.io/docs/tasks/security/mtls-migration/
+- https://istio.io/docs/tasks/security/authz-http/
 ## Prerequisites
 
 1. Install [`Kyma`](https://kyma-project.io/docs/root/kyma#installation-installation) and its prerequisites (kubectl). Kyma uses the Istio Service Mesh.
@@ -23,10 +26,10 @@ The scenario was tested on Kyma 0.8 and Istio 1.0.2.
 ### Preparation
 - Create the `foo` and `bar` namespaces and deploy `httpbin` and `sleep` with sidecar on both of them. 
   ```
-  kubectl apply ns foo
+  kubectl create ns foo
   kubectl apply -f samples/httpbin.yaml -n foo
   kubectl apply -f samples/sleep.yaml -n foo
-  kubectl apply ns bar
+  kubectl create ns bar
   kubectl apply -f samples/httpbin.yaml -n bar
   kubectl apply -f samples/sleep.yaml -n bar
   ```
@@ -47,7 +50,7 @@ The scenario was tested on Kyma 0.8 and Istio 1.0.2.
   ```
 - Create the `legacy` namespace and deploy sleep without sidecar.
   ```
-  kubectl apply ns legacy
+  kubectl create ns legacy
   kubectl label namespace legacy istio-injection=disabled
   kubectl apply -f samples/sleep.yaml -n legacy
   ```
@@ -220,7 +223,6 @@ The `Sleep.foo`, `Sleep.bar`, `Sleep.legacy` services will try to reach the dest
    sleep.bar to httpbin.foo: 200
    sleep.legacy to httpbin.foo: 403
    ```
-
 ### Cleanup
 Run command:
 ```
@@ -233,6 +235,44 @@ kubectl delete ns legacy
 namespace "foo" deleted
 namespace "bar" deleted
 namespace "legacy" deleted
+```
+
+### All-In-One
+```
+./samples/create_all.sh
+```
+*Expected result:*
+```
+namespace/foo created
+service/httpbin created
+deployment.extensions/httpbin created
+serviceaccount/sleep-account created
+service/sleep created
+deployment.extensions/sleep created
+namespace/bar created
+service/httpbin created
+deployment.extensions/httpbin created
+serviceaccount/sleep-account created
+service/sleep created
+deployment.extensions/sleep created
+namespace/legacy created
+namespace/legacy labeled
+serviceaccount/sleep-account created
+service/sleep created
+deployment.extensions/sleep created
+destinationrule.networking.istio.io/httpbin-istio-client-mtls created
+policy.authentication.istio.io/httpbin-policy created
+rbacconfig.rbac.istio.io/default created
+servicerole.rbac.istio.io/httpbin created
+servicerolebinding.rbac.istio.io/httpbin created
+```
+*Expected result in check_access terminal (wait till):*
+```
+Every 3.0s: ./samples/check_access.
+
+sleep.foo to httpbin.foo: 200
+sleep.bar to httpbin.foo: 200
+sleep.legacy to httpbin.foo: 403
 ```
 
 
